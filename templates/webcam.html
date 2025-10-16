@@ -3,341 +3,449 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webcam Detection - Monkey Detection</title>
+    <title>Webcam Detection - MonkeyVision AI</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
             min-height: 100vh;
-            padding: 20px;
+            overflow-x: hidden;
         }
-        
-        .container {
-            max-width: 1200px;
+
+        nav {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 1.2rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .nav-container {
+            max-width: 1400px;
             margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        
-        .header {
-            background: linear-gradient(135deg, #2c3e50, #34495e);
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
             color: white;
-            padding: 30px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: opacity 0.3s;
+        }
+
+        .logo:hover {
+            opacity: 0.8;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 100px auto 0;
+            padding: 3rem 2rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-header {
             text-align: center;
-            position: relative;
+            margin-bottom: 3rem;
         }
-        
-        .header h1 {
-            font-size: 2.2em;
-            margin-bottom: 10px;
-        }
-        
-        .back-button {
-            position: absolute;
-            left: 30px;
-            top: 30px;
-            background: rgba(255,255,255,0.2);
+
+        .page-header h1 {
+            font-size: 3rem;
             color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            transition: background 0.3s;
+            margin-bottom: 0.5rem;
+            font-weight: 800;
         }
-        
-        .back-button:hover {
-            background: rgba(255,255,255,0.3);
-            text-decoration: none;
-            color: white;
+
+        .page-header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.2rem;
         }
-        
-        .content {
-            padding: 40px;
+
+        .content-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 40px;
+            gap: 2rem;
         }
-        
-        .webcam-section, .snapshot-section {
-            background: #f8f9fa;
-            padding: 30px;
-            border-radius: 10px;
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2.5rem;
         }
-        
-        .video-container {
+
+        .card h3 {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-inactive {
+            background: rgba(244, 67, 54, 0.2);
+            color: #ff6b6b;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+
+        .status-active {
+            background: rgba(76, 175, 80, 0.2);
+            color: #81C784;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .webcam-container {
             position: relative;
             width: 100%;
             background: #000;
-            border-radius: 10px;
+            border-radius: 15px;
             overflow: hidden;
-            margin-bottom: 20px;
+            margin-bottom: 1.5rem;
             min-height: 400px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        
-        #videoFeed {
+
+        .webcam-feed {
             width: 100%;
             height: auto;
-            max-height: 400px;
-            border-radius: 10px;
+            display: none;
         }
-        
-        .video-placeholder {
-            color: #666;
+
+        .webcam-placeholder {
             text-align: center;
-            padding: 40px;
+            color: rgba(255, 255, 255, 0.5);
+            padding: 3rem 2rem;
         }
-        
+
+        .webcam-placeholder-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
         .controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
         }
-        
-        .control-button {
-            flex: 1;
-            padding: 12px 20px;
+
+        .btn {
+            padding: 1rem 2rem;
             border: none;
-            border-radius: 5px;
-            font-size: 1em;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
-            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
-        
-        .start-button {
-            background: #28a745;
+
+        .btn-start {
+            background: linear-gradient(120deg, #4CAF50, #66BB6A);
             color: white;
         }
-        
-        .start-button:hover:not(:disabled) {
-            background: #218838;
+
+        .btn-start:hover:not(:disabled) {
             transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(76, 175, 80, 0.4);
         }
-        
-        .stop-button {
-            background: #dc3545;
+
+        .btn-stop {
+            background: linear-gradient(120deg, #f44336, #e57373);
             color: white;
         }
-        
-        .stop-button:hover:not(:disabled) {
-            background: #c82333;
+
+        .btn-stop:hover:not(:disabled) {
             transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(244, 67, 54, 0.4);
         }
-        
-        .capture-button {
-            background: #007bff;
+
+        .btn-capture {
+            background: linear-gradient(120deg, #2196F3, #42A5F5);
             color: white;
-            width: 100%;
-            padding: 15px;
-            font-size: 1.1em;
-            font-weight: bold;
+            grid-column: 1 / -1;
         }
-        
-        .capture-button:hover:not(:disabled) {
-            background: #0056b3;
+
+        .btn-capture:hover:not(:disabled) {
             transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(33, 150, 243, 0.4);
         }
-        
-        .control-button:disabled {
-            background: #6c757d;
+
+        .btn:disabled {
+            background: rgba(255, 255, 255, 0.1);
             cursor: not-allowed;
+            opacity: 0.5;
             transform: none;
-            opacity: 0.6;
         }
-        
+
         .snapshot-image {
             max-width: 100%;
-            max-height: 400px;
-            border-radius: 10px;
+            border-radius: 15px;
             display: none;
-            margin-bottom: 20px;
-            border: 3px solid #007bff;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
-        
+
         .detection-info {
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 1.5rem;
             display: none;
-            margin-top: 20px;
         }
-        
+
+        .detection-info h4 {
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
         .detection-item {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
+
         .detection-item:last-child {
             border-bottom: none;
         }
-        
+
         .detection-label {
-            font-weight: bold;
-            color: #333;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
         }
-        
-        .detection-confidence {
-            background: #007bff;
+
+        .confidence-badge {
+            background: linear-gradient(120deg, #4CAF50, #8BC34A);
             color: white;
-            padding: 4px 12px;
+            padding: 0.3rem 1rem;
             border-radius: 20px;
-            font-size: 0.9em;
+            font-size: 0.9rem;
+            font-weight: 600;
         }
-        
-        .status {
-            padding: 15px;
-            border-radius: 5px;
-            text-align: center;
-            margin-bottom: 20px;
-            display: none;
-            font-weight: bold;
-        }
-        
-        .status-active {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .status-inactive {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .status-warning {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-        
+
         .loading {
             display: none;
             text-align: center;
-            padding: 30px;
+            padding: 2rem;
         }
-        
+
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #007bff;
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 1rem;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #2196F3;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
         }
-        
-        .result-message {
-            padding: 15px;
-            border-radius: 5px;
-            margin: 15px 0;
-            text-align: center;
-            font-weight: bold;
-            display: none;
-        }
-        
-        .success-message {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .error-message {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
-        @media (max-width: 768px) {
-            .content {
+
+        .loading p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .message-success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #81C784;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .message-error {
+            background: rgba(244, 67, 54, 0.2);
+            color: #ff6b6b;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .no-results-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 968px) {
+            .content-grid {
                 grid-template-columns: 1fr;
-                padding: 20px;
             }
-            
-            .back-button {
-                position: relative;
-                left: 0;
-                top: 0;
-                margin-bottom: 20px;
-                display: inline-block;
+
+            .page-header h1 {
+                font-size: 2rem;
             }
-            
-            .video-container {
-                min-height: 300px;
+
+            .nav-links {
+                display: none;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <a href="/" class="back-button">← Back to Home</a>
-            <h1>📹 Real-time Webcam Detection</h1>
-            <p>Real-time monkey detection using your webcam with snapshot analysis</p>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <span>🐵</span>
+                <span>MonkeyVision AI</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="/image-detection">Image</a></li>
+                <li><a href="/video-detection">Video</a></li>
+                <li><a href="/webcam-detection">Webcam</a></li>
+            </ul>
         </div>
-        
-        <div class="content">
-            <div class="webcam-section">
-                <h3>🎥 Live Webcam Feed</h3>
-                
-                <div class="status" id="status">
-                    Webcam Status: <span id="statusText">Ready to start</span>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>📹 Live Webcam Detection</h1>
+            <p>Real-time monkey detection with instant snapshot analysis</p>
+        </div>
+
+        <div class="content-grid">
+            <div class="card">
+                <h3>Live Feed</h3>
+
+                <div class="status-indicator status-inactive" id="statusIndicator">
+                    <span class="status-dot"></span>
+                    <span id="statusText">Inactive</span>
                 </div>
-                
-                <div class="video-container">
-                    <div class="video-placeholder" id="videoPlaceholder">
-                        <div style="font-size: 3em; margin-bottom: 10px;">📷</div>
-                        <p>Webcam feed will appear here</p>
-                        <p><small>Click "Start Webcam" to begin</small></p>
+
+                <div class="webcam-container">
+                    <div class="webcam-placeholder" id="webcamPlaceholder">
+                        <div class="webcam-placeholder-icon">📷</div>
+                        <p>Click "Start Webcam" to begin live detection</p>
                     </div>
-                    <img id="videoFeed" src="" alt="Live Webcam Feed">
+                    <img id="webcamFeed" class="webcam-feed" alt="Live Webcam Feed">
                 </div>
-                
+
                 <div class="controls">
-                    <button id="startButton" class="control-button start-button">
-                        🟢 Start Webcam
+                    <button id="startButton" class="btn btn-start">
+                        ▶️ Start
                     </button>
-                    <button id="stopButton" class="control-button stop-button" disabled>
-                        🔴 Stop Webcam
+                    <button id="stopButton" class="btn btn-stop" disabled>
+                        ⏹️ Stop
+                    </button>
+                    <button id="captureButton" class="btn btn-capture" disabled>
+                        📸 Capture & Analyze
                     </button>
                 </div>
-                
-                <button id="captureButton" class="capture-button" disabled>
-                    📸 Capture & Analyze Snapshot
-                </button>
-                
-                <div class="result-message" id="resultMessage"></div>
+
+                <div class="message" id="message"></div>
             </div>
-            
-            <div class="snapshot-section">
-                <h3>🔍 Snapshot Analysis</h3>
-                
+
+            <div class="card">
+                <h3>Analysis Results</h3>
+
                 <div class="loading" id="loading">
                     <div class="spinner"></div>
-                    <p>Analyzing snapshot for monkeys...</p>
-                    <p><small>This may take a few seconds</small></p>
+                    <p>Analyzing snapshot...</p>
                 </div>
-                
+
+                <div id="resultsContainer">
+                    <div class="no-results">
+                        <div class="no-results-icon">🔍</div>
+                        <p>Capture a snapshot to see detection results</p>
+                    </div>
+                </div>
+
                 <img id="snapshotImage" class="snapshot-image" alt="Snapshot Result">
-                
+
                 <div class="detection-info" id="detectionInfo">
                     <h4>📊 Detection Results</h4>
                     <div id="detectionList"></div>
@@ -347,130 +455,121 @@
     </div>
 
     <script>
-        const videoFeed = document.getElementById('videoFeed');
-        const videoPlaceholder = document.getElementById('videoPlaceholder');
+        const webcamFeed = document.getElementById('webcamFeed');
+        const webcamPlaceholder = document.getElementById('webcamPlaceholder');
         const startButton = document.getElementById('startButton');
         const stopButton = document.getElementById('stopButton');
         const captureButton = document.getElementById('captureButton');
         const snapshotImage = document.getElementById('snapshotImage');
         const detectionInfo = document.getElementById('detectionInfo');
         const detectionList = document.getElementById('detectionList');
-        const statusDiv = document.getElementById('status');
-        const statusText = document.getElementById('statusText');
         const loading = document.getElementById('loading');
-        const resultMessage = document.getElementById('resultMessage');
+        const message = document.getElementById('message');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+        const resultsContainer = document.getElementById('resultsContainer');
 
         let isStreaming = false;
 
-        // Function to show message
-        function showMessage(message, type) {
-            resultMessage.textContent = message;
-            resultMessage.className = 'result-message ' + type;
-            resultMessage.style.display = 'block';
-            
-            // Auto-hide success messages after 5 seconds
-            if (type === 'success-message') {
+        function showMessage(text, type) {
+            message.textContent = text;
+            message.className = 'message message-' + type;
+            message.style.display = 'block';
+
+            if (type === 'success') {
                 setTimeout(() => {
-                    resultMessage.style.display = 'none';
+                    message.style.display = 'none';
                 }, 5000);
             }
         }
 
-        // Start webcam stream
+        function updateStatus(active) {
+            if (active) {
+                statusIndicator.className = 'status-indicator status-active';
+                statusText.textContent = 'Live - Detecting';
+            } else {
+                statusIndicator.className = 'status-indicator status-inactive';
+                statusText.textContent = 'Inactive';
+            }
+        }
+
         startButton.addEventListener('click', async () => {
             try {
-                statusDiv.style.display = 'block';
-                statusDiv.className = 'status status-warning';
-                statusText.textContent = 'Starting webcam...';
-                
-                // Initialize webcam on server
+                showMessage('Starting webcam...', 'success');
+
                 const response = await fetch('/start-webcam', {
                     method: 'POST'
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
-                    videoFeed.src = '/video_feed?' + new Date().getTime(); // Add timestamp to avoid caching
+                    webcamFeed.src = '/video_feed?' + new Date().getTime();
                     isStreaming = true;
-                    
-                    videoFeed.onload = () => {
-                        videoPlaceholder.style.display = 'none';
-                        videoFeed.style.display = 'block';
-                        
+
+                    webcamFeed.onload = () => {
+                        webcamPlaceholder.style.display = 'none';
+                        webcamFeed.style.display = 'block';
+
                         startButton.disabled = true;
                         stopButton.disabled = false;
                         captureButton.disabled = false;
-                        
-                        statusDiv.className = 'status status-active';
-                        statusText.textContent = 'Active - Real-time detection running';
-                        
-                        showMessage('✅ Webcam started successfully! You can now capture snapshots.', 'success-message');
+
+                        updateStatus(true);
+                        showMessage('Webcam started successfully!', 'success');
                     };
-                    
-                    videoFeed.onerror = () => {
-                        showMessage('❌ Failed to start webcam feed. Please check camera permissions.', 'error-message');
-                        statusDiv.className = 'status status-inactive';
-                        statusText.textContent = 'Failed to start';
+
+                    webcamFeed.onerror = () => {
+                        showMessage('Failed to start webcam feed', 'error');
+                        updateStatus(false);
                         startButton.disabled = false;
+                        isStreaming = false;
                     };
-                    
                 } else {
-                    showMessage('❌ ' + data.error, 'error-message');
-                    statusDiv.className = 'status status-inactive';
-                    statusText.textContent = 'Failed to start';
+                    showMessage(data.error || 'Failed to start webcam', 'error');
                 }
             } catch (error) {
-                console.error('Error starting webcam:', error);
-                showMessage('❌ Error starting webcam: ' + error.message, 'error-message');
-                statusDiv.className = 'status status-inactive';
-                statusText.textContent = 'Error starting';
+                console.error('Error:', error);
+                showMessage('Error starting webcam: ' + error.message, 'error');
             }
         });
 
-        // Stop webcam stream
         stopButton.addEventListener('click', async () => {
             try {
-                const response = await fetch('/stop-webcam', {
-                    method: 'POST'
-                });
-                
-                videoFeed.src = '';
+                await fetch('/stop-webcam', { method: 'POST' });
+
+                webcamFeed.src = '';
                 isStreaming = false;
-                
-                videoPlaceholder.style.display = 'block';
-                videoFeed.style.display = 'none';
-                
+
+                webcamPlaceholder.style.display = 'block';
+                webcamFeed.style.display = 'none';
+
                 startButton.disabled = false;
                 stopButton.disabled = true;
                 captureButton.disabled = true;
-                
-                statusDiv.className = 'status status-inactive';
-                statusText.textContent = 'Stopped';
-                
-                showMessage('🛑 Webcam stopped.', 'success-message');
-                
-                // Clear snapshot and results
+
+                updateStatus(false);
+                showMessage('Webcam stopped', 'success');
+
                 snapshotImage.style.display = 'none';
                 detectionInfo.style.display = 'none';
-                resultMessage.style.display = 'none';
-                
+                resultsContainer.querySelector('.no-results').style.display = 'block';
             } catch (error) {
-                console.error('Error stopping webcam:', error);
-                showMessage('❌ Error stopping webcam: ' + error.message, 'error-message');
+                console.error('Error:', error);
+                showMessage('Error stopping webcam: ' + error.message, 'error');
             }
         });
 
-        // Capture and analyze snapshot
         captureButton.addEventListener('click', async () => {
             if (!isStreaming) {
-                showMessage('❌ Please start the webcam first!', 'error-message');
+                showMessage('Please start the webcam first', 'error');
                 return;
             }
 
             loading.style.display = 'block';
             captureButton.disabled = true;
-            resultMessage.style.display = 'none';
+            resultsContainer.querySelector('.no-results').style.display = 'none';
+            message.style.display = 'none';
 
             try {
                 const response = await fetch('/detect-webcam', {
@@ -482,52 +581,51 @@
                 if (data.success) {
                     snapshotImage.src = data.image;
                     snapshotImage.style.display = 'block';
-                    
-                    // Display detection information
+
                     if (data.detections && data.detections.length > 0) {
                         detectionList.innerHTML = '';
-                        data.detections.forEach((detection, index) => {
+
+                        data.detections.forEach((detection) => {
                             const item = document.createElement('div');
                             item.className = 'detection-item';
                             item.innerHTML = `
                                 <span class="detection-label">${detection.label}</span>
-                                <span class="detection-confidence">${(detection.confidence * 100).toFixed(1)}%</span>
+                                <span class="confidence-badge">${(detection.confidence * 100).toFixed(1)}%</span>
                             `;
                             detectionList.appendChild(item);
                         });
-                        
+
                         const summary = document.createElement('div');
                         summary.className = 'detection-item';
                         summary.innerHTML = `
                             <span class="detection-label"><strong>Total Detections</strong></span>
-                            <span class="detection-confidence">${data.total_detections}</span>
+                            <span class="confidence-badge">${data.total_detections}</span>
                         `;
                         detectionList.appendChild(summary);
-                        
+
                         detectionInfo.style.display = 'block';
+                        showMessage(data.message, 'success');
                     } else {
-                        detectionList.innerHTML = '<div class="detection-item">No monkeys detected in this snapshot</div>';
+                        detectionList.innerHTML = '<div class="detection-item">No monkeys detected in snapshot</div>';
                         detectionInfo.style.display = 'block';
+                        showMessage('No monkeys detected', 'error');
                     }
-                    
-                    showMessage(data.message, 'success-message');
-                    
-                    // Scroll to results
+
                     snapshotImage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    
                 } else {
-                    showMessage('❌ ' + data.error, 'error-message');
+                    showMessage(data.error || 'Analysis failed', 'error');
+                    resultsContainer.querySelector('.no-results').style.display = 'block';
                 }
             } catch (error) {
-                console.error('Error analyzing snapshot:', error);
-                showMessage('❌ Error analyzing snapshot: ' + error.message, 'error-message');
+                console.error('Error:', error);
+                showMessage('Error analyzing snapshot: ' + error.message, 'error');
+                resultsContainer.querySelector('.no-results').style.display = 'block';
             } finally {
                 loading.style.display = 'none';
                 captureButton.disabled = false;
             }
         });
 
-        // Handle page unload
         window.addEventListener('beforeunload', () => {
             if (isStreaming) {
                 fetch('/stop-webcam', { method: 'POST' });
