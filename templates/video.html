@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Detection - Monkey Detection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        
+        .back-button {
+            position: absolute;
+            left: 30px;
+            top: 30px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        
+        .back-button:hover {
+            background: rgba(255,255,255,0.3);
+            text-decoration: none;
+            color: white;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .upload-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .upload-area {
+            text-align: center;
+            padding: 40px 20px;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            background: #e9ecef;
+        }
+        
+        .upload-area i {
+            font-size: 3em;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .detect-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        
+        .detect-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .detect-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result-section {
+            display: none;
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        
+        .video-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .video-box {
+            text-align: center;
+        }
+        
+        .video-box h4 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        video {
+            max-width: 100%;
+            border-radius: 10px;
+            background: #000;
+        }
+        
+        .detection-info {
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .monkey-count {
+            font-size: 2em;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .video-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .back-button {
+                position: relative;
+                left: 0;
+                top: 0;
+                margin-bottom: 20px;
+                display: inline-block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/" class="back-button">← Back to Home</a>
+            <h1>🎥 Video Monkey Detection</h1>
+            <p>Upload a video to detect monkeys throughout the entire sequence</p>
+        </div>
+        
+        <div class="content">
+            <div class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <i>📁</i>
+                    <h3>Click to Upload Video</h3>
+                    <p>Supported formats: MP4, AVI, MOV</p>
+                    <input type="file" id="fileInput" class="file-input" accept="video/*">
+                </div>
+                
+                <button id="detectButton" class="detect-button" disabled>
+                    Process Video for Monkey Detection
+                </button>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Processing video... This may take a while depending on video length</p>
+                    <div class="progress-bar" id="progressBar">
+                        <div class="progress" id="progress"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="result-section" id="resultSection">
+                <div class="video-container">
+                    <div class="video-box">
+                        <h4>Original Video</h4>
+                        <video id="originalVideo" controls>
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <div class="video-box">
+                        <h4>Processed Video with Detections</h4>
+                        <video id="resultVideo" controls>
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+                
+                <div class="detection-info">
+                    <h3>Detection Summary</h3>
+                    <p>Maximum monkeys detected in any frame:</p>
+                    <div class="monkey-count" id="monkeyCount">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const detectButton = document.getElementById('detectButton');
+        const originalVideo = document.getElementById('originalVideo');
+        const resultVideo = document.getElementById('resultVideo');
+        const resultSection = document.getElementById('resultSection');
+        const monkeyCount = document.getElementById('monkeyCount');
+        const loading = document.getElementById('loading');
+        const progressBar = document.getElementById('progressBar');
+        const progress = document.getElementById('progress');
+
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                originalVideo.src = url;
+                detectButton.disabled = false;
+                
+                // Clear previous results
+                resultSection.style.display = 'none';
+            }
+        });
+
+        detectButton.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // Show loading with progress bar
+            loading.style.display = 'block';
+            progressBar.style.display = 'block';
+            detectButton.disabled = true;
+
+            // Simulate progress (in real app, you might use WebSockets for real progress)
+            let progressValue = 0;
+            const progressInterval = setInterval(() => {
+                progressValue += Math.random() * 5;
+                if (progressValue >= 90) {
+                    clearInterval(progressInterval);
+                }
+                progress.style.width = progressValue + '%';
+            }, 500);
+
+            try {
+                const response = await fetch('/upload-video', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    progress.style.width = '100%';
+                    
+                    // Display results
+                    resultVideo.src = data.result_video;
+                    monkeyCount.textContent = data.total_monkeys;
+                    resultSection.style.display = 'block';
+                    
+                    // Scroll to results
+                    resultSection.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error processing video: ' + error.message);
+            } finally {
+                clearInterval(progressInterval);
+                loading.style.display = 'none';
+                detectButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
