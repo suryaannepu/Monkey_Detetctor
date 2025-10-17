@@ -5,3 +5,4 @@ ultralytics
 opencv-python
 Pillow
 numpy
+gunicorn
